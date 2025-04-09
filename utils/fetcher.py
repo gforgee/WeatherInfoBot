@@ -52,7 +52,7 @@ def fetch_weather(city: str = DEFAULT_CITY, lat: float = DEFAULT_LAT, lon: float
         response.raise_for_status()
         return response.json()
     except requests.exceptions.RequestException as e:
-        print(f'[Error] Couldnt get weather data {e}')
+        print(f'[Error] /tools -> fetcher.py -> fetch_weather - > Couldnt get weather data {e}')
         return {}
 
 
@@ -79,7 +79,7 @@ def parse_weather_data(data: dict, city: str) -> str:
             f"💨 Wiatr: {wind_speed} m/s\n")
 
     except (KeyError, IndexError, TypeError) as e:
-        return f"Error while parsing weather data: {e}"
+        return f"[Error] /utils -> fetcher.py -> parse_weather_data -> Cant prase a data: {e}"
 
 
 def get_coordinates(city: str, limit: int = 2):
@@ -100,5 +100,5 @@ def get_coordinates(city: str, limit: int = 2):
             return None, None
 
     except requests.exceptions.RequestException as e:
-        print(f'[Error] Couldnt get weather data {e}')
+        print(f'[Error] /utils -> fetcher.py -> get_coordinates - > Couldnt get weather data {e}')
         return {}
