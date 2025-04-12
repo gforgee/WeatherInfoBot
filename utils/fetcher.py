@@ -69,6 +69,7 @@ def parse_weather_data(data: dict, city: str) -> str:
         humidity = data['main']['humidity']
         wind_speed = data['wind']['speed']
         return (
+            f" "
             f"Raport dla dnia {datetime.now().strftime('%D:%H:%M:%S')}\n"
             f"📍 Pogoda dla {city}:\n"
             f"{emoji} {description.capitalize()}\n"
@@ -76,7 +77,8 @@ def parse_weather_data(data: dict, city: str) -> str:
             f"🧊 Temperatura min: {temp_min:.2f}:C\n"
             f"🔥 Temperatura maks: {temp_max:.2f}°C\n"
             f"💧 Wilgotność: {humidity}%\n"
-            f"💨 Wiatr: {wind_speed} m/s\n")
+            f"💨 Wiatr: {wind_speed} m/s\n"
+            f" ")
 
     except (KeyError, IndexError, TypeError) as e:
         return f"[Error] /utils -> fetcher.py -> parse_weather_data -> Cant prase a data: {e}"

@@ -1,16 +1,19 @@
 import asyncio
 import os
+import time
+from discord import Intents, Client
 
 from utils.config import config
-from discord import Intents, Client
-from utils.users_init import add_city, init_users
+from utils.users_init import init_users
+from utils.dateprinter import print_date
+from utils.cities import add_city
 from dotenv import load_dotenv
 
 load_dotenv()
-
+t0 = time.time()
 TOKEN = os.getenv("DISCORD_TOKEN")
-
-users = init_users() # Making the dict -> {id:{'cities': 'Krakow','counter': 0,'tasks':None}}
+date = print_date()
+users = init_users()  # Making the dict -> {id:{'cities': 'Krakow','counter': 0,'tasks':None}}
 print(f'Users dict: {users}')
 
 intents = Intents.default()
@@ -19,48 +22,53 @@ client = Client(intents=intents)
 
 @client.event
 async def on_ready():
-    print(f'BOT is online -> {client.user}')
+    print(f'({date})  BOT is online -> {client.user}')
     await send_welcome_mssg()
 
-#{id:{'cities': 'Krakow','counter': 0,'tasks':None}}
+
+# {id:{'cities': 'Krakow','counter': 0,'tasks':None}}
 @client.event
 async def on_message(message):
     if message.author == client.user:
         return
 
-    if message.content.startswith('$city') and users[message.author.id]['cities'] != '':
+    if message.content.startswith('$city'):
         z = message.content[len('$city '):]
-        for char in message.content[z]:
-            if char in '.()[]{}/\<>!@#$%^&*-_=+`~;:?|':
+        adding_info = add_city(users, z, message.author.id)
+        if isinstance(adding_info, str):
+            await message.channel.send(f'Dear Human, the city "{z}" is already in the forecast.')
+        else:
+            await message.channel.send(
+                f'Dear Human i shall add city/cities to the forecast -> {z}')
+        print(f'({date})  user {message.author.id} ({message.author.name}) added {z} to dict',
+              users[message.author.id]['cities'])
+
+    elif message.content.startswith('$start'):
+        if users[message.author.id]['counter'] == 0:
+            if not users[message.author.id]['cities']:
                 await message.channel.send(
-                    f'Dear Human you can\'t use {char} in your city name.')
-                return
-            elif char == ',':
-                pass
-        add_city(message.author.id, z.capitalize())
-        await message.channel.send(
-            f'Dear Human your city is added \'{z}\'')
-        print(f'{message.author.name} added {z} to dict', users[message.author.id])
+                    f'Dear Human you have not added city please write $city <city-name>')
+            else:
+                await enable_dm(message.author.id)
+                users[message.author.id]['counter'] += 1
+                await message.channel.send(
+                    f'Dear Human you have started the weather forecast\n\n')
+        elif users[message.author.id]['counter'] != 0:
+            await message.channel.send(
+                f'Dear Human you have already started the weather forecast please write $stop to stop and make changes')
+        else:
+            print(
+                f'({date})  {message.author.id} ({message.author.name}) should not start the forecast without city')
 
-    if message.content.startswith('$start') and users[message.author.id]['counter'] == 0:
-        await enable_dm(message.author.id)
-        users[str(message.author.id)][0] += 1
-        await message.channel.send(
-            f'Dear Human you have started the weather forecast if you want to make changes write $stop')
-    elif message.content.startswith('$start') and users[message.author.id]['counter'] != 0:
-        await message.channel.send(
-            f'Dear Human you have already started the weather forecast please write $stop to stop and make changes')
-    elif message.content.startswith('$start') and users[message.author.id]['cities'] == '':
-        await message.channel.send(
-            f'Dear Human you have not added city please write $city <miasto>')
-
-    if message.content.startswith('$stop') and users[message.author.id]['counter'] != 0:
-        await stop_dm(message.author.id)
-        users[str(message.author.id)][0] -= 1
-    elif message.content.startswith('$stop') and users[message.author.id]['counter'] == 0:
-        await message.channel.send(
-            f'Dear Human you have not started the weather forecast please write $start')
-
+    elif message.content.startswith('$stop'):
+        if users[message.author.id]['counter'] != 0:
+            await stop_dm(message.author.id)
+            users[message.author.id]['counter'] -= 1
+            await message.channel.send(
+                f'Dear Human you have stopped the weather forecast\n\n')
+        elif users[message.author.id]['counter'] == 0:
+            await message.channel.send(
+                f'Dear Human you have not started the weather forecast please write $start')
 
 
 async def enable_dm(user_id):
@@ -74,36 +82,36 @@ async def enable_dm(user_id):
                     for city in users[user_id]['cities']:
                         await user.send(config(city))
                 else:
-                    print(f'[Error] main.py -> enable_dm() -> Unknown user {user_id}')
-                print(f'Sent message to {user.name}')
+                    print(f'({date}) [Error] main.py -> enable_dm() -> Unknown user {user_id}')
+                print(f'({date})  Sent message to {user.name}')
             except Exception as e:
-                print(f'[Error]Could not send data to ID:{user_id} ({user.name}): {e}')
-            await asyncio.sleep(86400)
+                print(f'({date})  [Error]Could not send data to ID:{user_id} ({user.name}): {e}')
+            await asyncio.sleep(86400)  # <-- improve this
 
     users[user_id]['tasks'] = asyncio.create_task(send_weather_updates())
-    print(users)
+    print(f'({date})  User {user_id} created a task (started forecast): {users[user_id]["tasks"]}')
 
 
 async def stop_dm(user_id: int):
     if user_id in users:
         if users[user_id]:
-            for task in users[user_id]:
-                task.cancel()
-            users[user_id].clear()
-            print(f'Stopped sending messages to {user_id}')
+            if users[user_id]['tasks']:
+                users[user_id]['tasks'].cancel()
+                users[user_id]['tasks'] = None
+            print(f'({date})  Stopped sending messages to {user_id}')
     else:
-        print(f'[Error] main.py -> stop_dm() -> Unknown user {user_id}')
+        print(f'({date})  [Error] main.py -> stop_dm() -> Unknown user {user_id}')
 
 
-async def send_welcome_mssg():
+async def send_welcome_mssg():  # TODO this function should be called only once not after restart
     for user_ids in users:
         try:
             user = await client.fetch_user(user_ids)
             await user.send(
                 'Welcome Human:\n$city <miasto> <- dodajesz miasta do sprawdzenia pogody oddzielajac przecinkiem,\n$start <- codzienna rutyna ')
-            print(f'Sent welcome message to  {user_ids} ({user.name})') # todo change to english version
+            print(f'({date})  Sent welcome message to  {user_ids}')  # todo change to english version
         except Exception as e:
-            print(f'[Error] Couldnt not send welcome message to ID {user_ids} ({user.name}): {e}')
+            print(f'({date})  [Error] Couldnt not send welcome message to ID {user_ids} {e}')
 
 
 client.run(TOKEN)

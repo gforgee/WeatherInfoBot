@@ -15,4 +15,4 @@ def config(city):
         msg = parse_weather_data(data, city)
         return msg
     except Exception as e:
-        return f'[Error] /utils -> config.py -> config() -> occured: {e}'
+        print(f'[Error] /utils -> config.py -> config() -> occured: {e}')
