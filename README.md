@@ -16,7 +16,7 @@ Run the application using the following command:
 python weather_bot.py
 ```
 
-#Commands (while it is running)
+## Commands (while it is running)
 `$city` [city separated with ','] - adding city to the forecast list
 `start` - starting forecast
 `$stop` - stop the forecast
