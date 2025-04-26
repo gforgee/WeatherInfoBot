@@ -18,7 +18,7 @@ python weather_bot.py
 
 ## Commands (while it is running)
 - `$city` [city separated with ','] - adding city to the forecast list
-- `start` - starting forecast
+- `$start` - starting forecast
 - `$stop` - stop the forecast
 
 
