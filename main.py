@@ -1,6 +1,5 @@
 import asyncio
 import os
-import time
 from discord import Intents, Client
 
 from utils.config import config
@@ -10,7 +9,6 @@ from utils.cities import add_city
 from dotenv import load_dotenv
 
 load_dotenv()
-t0 = time.time()
 TOKEN = os.getenv("DISCORD_TOKEN")
 date = print_date()
 users = init_users()  # Making the dict -> {id:{'cities': 'Krakow','counter': 0,'tasks':None}}
@@ -85,8 +83,8 @@ async def enable_dm(user_id):
                     print(f'({date}) [Error] main.py -> enable_dm() -> Unknown user {user_id}')
                 print(f'({date})  Sent message to {user.name}')
             except Exception as e:
-                print(f'({date})  [Error]Could not send data to ID:{user_id} ({user.name}): {e}')
-            await asyncio.sleep(86400)  # <-- improve this
+                print(f'({date})  [Error]Could not send data to ID:{user_id} ({user_id.name}): {e}')
+            await asyncio.sleep(86400)
 
     users[user_id]['tasks'] = asyncio.create_task(send_weather_updates())
     print(f'({date})  User {user_id} created a task (started forecast): {users[user_id]["tasks"]}')

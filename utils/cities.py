@@ -6,7 +6,7 @@ date = print_date()
 def str_city_format(cities: str) -> list:
     try:
         city_list = cities.split(',')
-        city_list = [city.strip().capitalize() for city in city_list]  # Usuń spacje i kapitalizuj
+        city_list = [city.strip().capitalize() for city in city_list]
         return city_list
     except Exception as e:
         print(f'({date}) [[Error] /utils -> cities.py -> str_city_format() ->  {e}')
