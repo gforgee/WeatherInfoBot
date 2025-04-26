@@ -5,7 +5,6 @@ WeatherInfoBot is a Python-based application that provides real-time weather upd
 ## Features
 
 - Provides current weather information for any location.
-- Offers 7-day weather forecasts.
 - Easy-to-use interface for retrieving weather data.
 - Built with Python.
 
