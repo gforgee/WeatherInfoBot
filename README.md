@@ -1,6 +1,6 @@
 # WeatherInfoBot
 
-WeatherInfoBot is a Python-based application that provides real-time weather updates and forecasts. It fetches weather data from APIs and presents it in an easy-to-understand format.
+WeatherInfoBot is a Python-based application that provides real-time weather updates and forecasts. It fetches weather data from APIs and presents it in an easy-to-understand format. Made for educational purposes.
 
 ## Features
 
@@ -16,7 +16,11 @@ Run the application using the following command:
 python weather_bot.py
 ```
 
-Follow the on-screen instructions to get weather updates for your desired location.
+#Commands (while it is running)
+`$city` [city separated with ','] - adding city to the forecast list
+`start` - starting forecast
+`$stop` - stop the forecast
+
 
 ## Configuration
 
@@ -29,6 +33,8 @@ Contributions are welcome! Please follow these steps:
 1. Fork the repository.
 2. Create a new branch for your feature or bug fix.
 3. Commit your changes and submit a pull request.
+
+
 
 ## License
 
