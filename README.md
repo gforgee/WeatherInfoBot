@@ -13,7 +13,7 @@ WeatherInfoBot is a Python-based application that provides real-time weather upd
 
 Run the application using the following command:
 ```bash
-python weather_bot.py
+python main.py
 ```
 
 ## Commands (while it is running)
